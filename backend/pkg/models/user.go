@@ -1,11 +1,11 @@
-package model
+package models
 
 import "gorm.io/gorm"
 
 type User struct {
 	gorm.Model
 	Name string `json:"name"`
-	Rounds []Round `json:"rounds"`
+	Rounds []Round `gorm:"foreignKey:UserID" json:"rounds"`
 }
 
 type Round struct {
@@ -26,5 +26,5 @@ type Score struct {
 type ScoreCard struct {
 	gorm.Model
 	Name string `json:"name"`
-	Scores []Score `json:"scores"`
+	Scores []Score `gorm:"foreignKey:ScorecardID" json:"scores"`
 }
