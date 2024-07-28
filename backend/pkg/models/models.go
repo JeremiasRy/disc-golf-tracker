@@ -12,7 +12,7 @@ type Course struct {
 type Hole struct {
 	gorm.Model
 	Par      uint    `json:"par"`
-	NthHole  uint    `json:"nth_hole"`
+	NthHole  uint    `gorm:"uniqueIndex" json:"nth_hole"`
 	CourseID uint    `json:"course_id"`
 	Scores   []Score `gorm:"foreignKey:HoleID" json:"scores"`
 }

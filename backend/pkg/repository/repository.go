@@ -12,54 +12,64 @@ func NewRepository[T any](db *gorm.DB) Repository[T] {
 	return Repository[T]{DB: db}
 }
 
+func (repo *Repository[T]) Begin() *gorm.DB {
+	return repo.DB.Begin()
+}
+
+func (repo *Repository[T]) Commit(tx *gorm.DB) error {
+	return tx.Commit().Error
+}
+
+func (repo *Repository[T]) Rollback(tx *gorm.DB) error {
+	return tx.Rollback().Error
+}
+
 func (repo *Repository[T]) Create(model *T) error {
 	return repo.DB.Create(model).Error
 }
 
-func (repo *Repository[T]) GetById(id uint) (*T, error) {
+func (repo *Repository[T]) GetById(tx *gorm.DB, id uint) (*T, error) {
 	var entity T
-	if err := repo.DB.First(&entity, id).Error; err != nil {
+	if err := tx.First(&entity, id).Error; err != nil {
 		return nil, err
 	}
 	return &entity, nil
 }
 
-func (repo *Repository[T]) GetAll() ([]T, error) {
+func (repo *Repository[T]) GetAll(tx *gorm.DB) ([]T, error) {
 	var models []T
-	if err := repo.DB.Find(&models).Error; err != nil {
+	if err := tx.Find(&models).Error; err != nil {
 		return nil, err
 	}
 	return models, nil
 }
 
-func (repo *Repository[T]) Update(model T) error {
-	return repo.DB.Save(&model).Error
+func (repo *Repository[T]) Update(tx *gorm.DB, model *T) error {
+	return tx.Save(model).Error
 }
 
-func (repo *Repository[T]) DeleteByID(id uint) error {
+func (repo *Repository[T]) DeleteByID(tx *gorm.DB, id uint) error {
 	var model T
-	return repo.DB.Delete(&model, id).Error
+	return tx.Delete(&model, id).Error
 }
 
-func (repo *Repository[T]) GetWithRelations(id uint, relations ...string) (*T, error) {
+func (repo *Repository[T]) GetWithRelations(tx *gorm.DB, id uint, relations ...string) (*T, error) {
 	var model T
-	query := repo.DB
 	for _, relation := range relations {
-		query = query.Preload(relation)
+		tx = tx.Preload(relation)
 	}
-	if err := query.First(&model, id).Error; err != nil {
+	if err := tx.First(&model, id).Error; err != nil {
 		return nil, err
 	}
 	return &model, nil
 }
 
-func (repo *Repository[T]) GetAllWithRelations(relations ...string) ([]T, error) {
+func (repo *Repository[T]) GetAllWithRelations(tx *gorm.DB, relations ...string) ([]T, error) {
 	var models []T
-	query := repo.DB
 	for _, relation := range relations {
-		query = query.Preload(relation)
+		tx = tx.Preload(relation)
 	}
-	if err := query.Find(&models).Error; err != nil {
+	if err := tx.Find(&models).Error; err != nil {
 		return nil, err
 	}
 	return models, nil
