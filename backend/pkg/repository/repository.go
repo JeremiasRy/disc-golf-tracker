@@ -24,24 +24,24 @@ func (repo *Repository[T]) Rollback(tx *gorm.DB) error {
 	return tx.Rollback().Error
 }
 
-func (repo *Repository[T]) Create(model *T) error {
-	return repo.DB.Create(model).Error
+func (repo *Repository[T]) Create(tx *gorm.DB, model *T) error {
+	return tx.Create(model).Error
 }
 
 func (repo *Repository[T]) GetById(tx *gorm.DB, id uint) (*T, error) {
 	var entity T
-	if err := tx.First(&entity, id).Error; err != nil {
+	if err := repo.DB.First(&entity, id).Error; err != nil {
 		return nil, err
 	}
 	return &entity, nil
 }
 
-func (repo *Repository[T]) GetAll(tx *gorm.DB) ([]T, error) {
+func (repo *Repository[T]) GetAll(tx *gorm.DB) (*[]T, error) {
 	var models []T
 	if err := tx.Find(&models).Error; err != nil {
 		return nil, err
 	}
-	return models, nil
+	return &models, nil
 }
 
 func (repo *Repository[T]) Update(tx *gorm.DB, model *T) error {
@@ -64,7 +64,7 @@ func (repo *Repository[T]) GetWithRelations(tx *gorm.DB, id uint, relations ...s
 	return &model, nil
 }
 
-func (repo *Repository[T]) GetAllWithRelations(tx *gorm.DB, relations ...string) ([]T, error) {
+func (repo *Repository[T]) GetAllWithRelations(tx *gorm.DB, relations ...string) (*[]T, error) {
 	var models []T
 	for _, relation := range relations {
 		tx = tx.Preload(relation)
@@ -72,5 +72,5 @@ func (repo *Repository[T]) GetAllWithRelations(tx *gorm.DB, relations ...string)
 	if err := tx.Find(&models).Error; err != nil {
 		return nil, err
 	}
-	return models, nil
+	return &models, nil
 }

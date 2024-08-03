@@ -13,9 +13,51 @@ func NewCourseService(repository *repository.Repository[models.Course]) CourseSe
 	return CourseService{repo: repository}
 }
 
+func (service *CourseService) GetCourse(courseID uint) (*models.Course, error) {
+	course, err := service.repo.GetWithRelations(service.repo.DB, courseID, "Holes", "Rounds")
+	return course, err
+}
+
+func (service *CourseService) GetAllCourses() (*[]models.Course, error) {
+	courses, err := service.repo.GetAllWithRelations(service.repo.DB, "Holes")
+	return courses, err
+}
+
+func (service *CourseService) EditCourseName(courseName string, courseID uint) error {
+	tx := service.repo.Begin()
+
+	defer func() {
+		if r := recover(); r != nil || tx.Error != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	course, err := service.repo.GetById(tx, courseID)
+	if err != nil {
+		return err
+	}
+
+	course.Name = courseName
+	if err = service.repo.Update(tx, course); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (service *CourseService) InsertCourse(courseName string) (*models.Course, error) {
+	tx := service.repo.Begin()
+	defer func() {
+		if r := recover(); r != nil || tx.Error != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
 	course := models.Course{Name: courseName}
-	if err := service.repo.Create(&course); err != nil {
+	if err := service.repo.Create(tx, &course); err != nil {
 		return nil, err
 	}
 	return &course, nil
@@ -25,15 +67,16 @@ func (service *CourseService) InsertHoleToCourse(courseID uint, par uint, nthHol
 	tx := service.repo.Begin()
 
 	defer func() {
-		if r := recover(); r != nil {
+		if r := recover(); r != nil || tx.Error != nil {
 			tx.Rollback()
+		} else {
+			tx.Commit()
 		}
 	}()
 
 	course, err := service.repo.GetWithRelations(tx, courseID, "holes")
 
 	if err != nil {
-		tx.Rollback()
 		return err
 	}
 
@@ -41,11 +84,6 @@ func (service *CourseService) InsertHoleToCourse(courseID uint, par uint, nthHol
 	course.Holes = append(course.Holes, hole)
 
 	if err = service.repo.Update(tx, course); err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	if err = service.repo.Commit(tx); err != nil {
 		return err
 	}
 
