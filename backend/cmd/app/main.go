@@ -1,9 +1,13 @@
 package main
 
 import (
+	"disc-golf-tracker/backend/pkg/controllers"
 	"disc-golf-tracker/backend/pkg/models"
+	"disc-golf-tracker/backend/pkg/repositories"
+	"disc-golf-tracker/backend/pkg/services"
 	"log"
 
+	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -20,4 +24,15 @@ func main() {
 	if err != nil {
 		log.Fatal("Migration failed!")
 	}
+
+	courseRepo := repositories.NewRepository[models.Course](db)
+	courseService := services.NewCourseService(&courseRepo)
+	courseController := controllers.NewCourseController(&courseService)
+
+	r := gin.Default()
+
+	r.POST("/courses", courseController.HandleCreateCourse)
+	r.GET("/courses", courseController.HandleGetCourses)
+	r.GET("/courses/:courseId", courseController.HandleGetCourseById)
+	r.Run(":8800")
 }
