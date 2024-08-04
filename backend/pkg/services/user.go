@@ -13,8 +13,8 @@ func NewUserService(repository *repositories.CrudRepository[models.User]) UserSe
 	return UserService{repo: repository}
 }
 
-func (service *UserService) CreateUser(userName string) (*models.User, error) {
-	user := models.User{Name: userName}
+func (service *UserService) CreateUser(userName string, email string) (*models.User, error) {
+	user := models.User{Name: userName, Email: email}
 
 	if err := service.repo.Create(service.repo.DB, &user); err != nil {
 		return nil, err

@@ -9,7 +9,7 @@ type ScoreService struct {
 	repo *repositories.CrudRepository[models.Score]
 }
 
-func NewScoreervice(repository *repositories.CrudRepository[models.Score]) ScoreService {
+func NewScoreService(repository *repositories.CrudRepository[models.Score]) ScoreService {
 	return ScoreService{repo: repository}
 }
 

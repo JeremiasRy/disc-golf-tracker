@@ -18,21 +18,58 @@ func main() {
 	if err != nil {
 		log.Fatal("Failed to open database connection")
 	}
-
+	db.Exec("PRAGMA foreign_keys = ON")
 	err = db.AutoMigrate(&models.User{}, &models.Round{}, &models.Score{}, &models.Score{}, &models.ScoreCard{}, &models.Course{}, &models.Hole{})
 
 	if err != nil {
 		log.Fatal("Migration failed!")
 	}
 
+	r := gin.Default()
+
+	// COURSES
 	courseRepo := repositories.NewRepository[models.Course](db)
 	courseService := services.NewCourseService(&courseRepo)
 	courseController := controllers.NewCourseController(&courseService)
 
-	r := gin.Default()
-
 	r.POST("/courses", courseController.HandleCreateCourse)
 	r.GET("/courses", courseController.HandleGetCourses)
 	r.GET("/courses/:courseId", courseController.HandleGetCourseById)
+
+	// HOLES
+	holeRepo := repositories.NewRepository[models.Hole](db)
+	holeService := services.NewHoleService(&holeRepo)
+	holeController := controllers.NewHoleController(&holeService)
+
+	r.POST("/holes", holeController.HandleCreateHole)
+	r.GET("/holes/:holeId", holeController.HandleGetHoleById)
+
+	// USERS
+	userRepo := repositories.NewRepository[models.User](db)
+	userService := services.NewUserService(&userRepo)
+	userController := controllers.NewUserController(&userService)
+
+	r.POST("/users", userController.HandleCreateUser)
+	r.GET("/users", userController.HandleGetAllUsers)
+	r.GET("/users/:userId", userController.HandleGetUserById)
+	r.PATCH("/users/:userId", userController.HandleUpdateUser)
+
+	// SCORES
+	scoreRepo := repositories.NewRepository[models.Score](db)
+	scoreService := services.NewScoreService(&scoreRepo)
+	scoreController := controllers.NewScoreController(&scoreService)
+
+	r.POST("/scores", scoreController.HandleCreateScore)
+	r.PATCH("/scores/:scoreId", scoreController.HandleEditScore)
+
+	// SCORECARDS
+	scoreCardRepo := repositories.NewRepository[models.ScoreCard](db)
+	scoreCardService := services.NewScoreCardService(&scoreCardRepo)
+	scoreCardController := controllers.NewScoreCardController(&scoreCardService)
+
+	r.POST("/scorecards", scoreCardController.HandleCreateScoreCard)
+
+	// ROUNDS
+
 	r.Run(":8800")
 }

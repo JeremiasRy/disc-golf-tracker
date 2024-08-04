@@ -5,8 +5,8 @@ import "gorm.io/gorm"
 type Course struct {
 	gorm.Model
 	Name   string  `json:"name"`
-	Holes  []Hole  `gorm:"foreignKey:CourseID" json:"holes"`
-	Rounds []Round `gorm:"foreignKey:CourseID" json:"rounds"`
+	Holes  []Hole  `gorm:"foreignKey:CourseID;constraint:OnDelete:Cascade" json:"holes"`
+	Rounds []Round `gorm:"foreignKey:CourseID;constraint:OnDelete:Cascade" json:"rounds"`
 }
 
 type Hole struct {
@@ -14,20 +14,20 @@ type Hole struct {
 	Par      uint    `json:"par"`
 	NthHole  uint    `gorm:"uniqueIndex" json:"nth_hole"`
 	CourseID uint    `json:"course_id"`
-	Scores   []Score `gorm:"foreignKey:HoleID" json:"scores"`
+	Scores   []Score `gorm:"foreignKey:HoleID;constraint:OnDelete:Cascade" json:"scores"`
 }
 
 type Round struct {
 	gorm.Model
 	CourseID   uint
-	ScoreCards []ScoreCard `gorm:"foreignKey:RoundID" json:"cards"`
+	ScoreCards []ScoreCard `gorm:"foreignKey:RoundID;constraint:OnDelete:Cascade" json:"cards"`
 }
 
 type ScoreCard struct {
 	gorm.Model
 	RoundID uint
 	UserID  uint
-	Scores  []Score `gorm:"foreignKey:ScorecardID" json:"scores"`
+	Scores  []Score `gorm:"foreignKey:ScorecardID;constraint:OnDelete:Cascade" json:"scores"`
 }
 
 type Score struct {
@@ -41,5 +41,6 @@ type Score struct {
 type User struct {
 	gorm.Model
 	Name       string      `json:"name"`
-	ScoreCards []ScoreCard `gorm:"foreignKey:UserID" json:"score_card"`
+	Email      string      `json:"email" gorm:"uniqueIndex"`
+	ScoreCards []ScoreCard `gorm:"foreignKey:UserID;constraint:OnDelete:Cascade" json:"score_card"`
 }

@@ -13,12 +13,11 @@ type CourseController struct {
 }
 
 type CreateCourseRequest struct {
-	CourseName string `json:"courseName" binding:"required,min=3"`
+	CourseName string `json:"course_name" binding:"required,min=3"`
 }
 
 type UpdateCourseRequest struct {
-	CourseID   uint   `json:"courseId" binding:"required"`
-	CourseName string `json:"courseName" binding:"required,min=3"`
+	CourseName string `json:"course_name" binding:"required,min=3"`
 }
 
 func NewCourseController(service *services.CourseService) CourseController {
@@ -39,14 +38,16 @@ func (controller *CourseController) HandleGetCourses(c *gin.Context) {
 func (controller *CourseController) HandleGetCourseById(c *gin.Context) {
 	courseId, err := strconv.Atoi(c.Param("courseId"))
 
-	if err != nil {
+	if err != nil || courseId < 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	course, err := controller.service.GetCourse(uint(courseId))
 
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Course not found"})
+		return
 	}
 
 	c.JSON(http.StatusOK, course)
@@ -71,6 +72,12 @@ func (controller *CourseController) HandleCreateCourse(c *gin.Context) {
 }
 
 func (controller *CourseController) HandleUpdateCourse(c *gin.Context) {
+	courseId, err := strconv.Atoi("courseId")
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	var requestBody UpdateCourseRequest
 
 	if err := c.ShouldBindJSON(&requestBody); err != nil {
@@ -78,9 +85,10 @@ func (controller *CourseController) HandleUpdateCourse(c *gin.Context) {
 		return
 	}
 
-	err := controller.service.EditCourseName(requestBody.CourseName, requestBody.CourseID)
+	err = controller.service.EditCourseName(requestBody.CourseName, uint(courseId))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.Status(http.StatusNoContent)
