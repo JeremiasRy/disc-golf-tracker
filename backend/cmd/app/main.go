@@ -70,6 +70,12 @@ func main() {
 	r.POST("/scorecards", scoreCardController.HandleCreateScoreCard)
 
 	// ROUNDS
+	roundRepo := repositories.NewRepository[models.Round](db)
+	roundService := services.NewRoundService(&roundRepo)
+	roundController := controllers.NewRoundController(&roundService)
+
+	r.POST("/rounds", roundController.HandleCreateRound)
+	r.GET("/rounds/:roundId", roundController.HandleGetRound)
 
 	r.Run(":8800")
 }
