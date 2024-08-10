@@ -15,3 +15,19 @@ export type Hole = {
     par: number
     ID: number
 }
+
+export type Round = {
+    ID: number
+    ScoreCards: ScoreCard[]
+}
+
+export type ScoreCard = {
+    ID: number
+    scores: Score[]
+}
+
+export type Score = {
+    ID: number
+    strokes: number
+    penalties: number
+}
