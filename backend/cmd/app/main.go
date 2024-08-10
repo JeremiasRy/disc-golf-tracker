@@ -2,6 +2,7 @@ package main
 
 import (
 	"disc-golf-tracker/backend/pkg/controllers"
+	"disc-golf-tracker/backend/pkg/middleware"
 	"disc-golf-tracker/backend/pkg/models"
 	"disc-golf-tracker/backend/pkg/repositories"
 	"disc-golf-tracker/backend/pkg/services"
@@ -26,6 +27,8 @@ func main() {
 	}
 
 	r := gin.Default()
+
+	r.Use(middleware.CORSMiddleware())
 
 	// COURSES
 	courseRepo := repositories.NewRepository[models.Course](db)
