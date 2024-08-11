@@ -32,14 +32,13 @@ func (controller *ScoreController) HandleCreateScore(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
 	score, err := controller.service.CreateScore(requestBody.HoleID, requestBody.ScoreCardID)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, score)
+	c.JSON(http.StatusAccepted, score)
 }
 
 func (controller *ScoreController) HandleEditScore(c *gin.Context) {

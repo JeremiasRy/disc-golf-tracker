@@ -14,11 +14,31 @@ func NewScoreService(repository *repositories.CrudRepository[models.Score]) Scor
 }
 
 func (service *ScoreService) CreateScore(holeId uint, scoreCardId uint) (*models.Score, error) {
-	score := models.Score{HoleID: holeId, ScorecardID: scoreCardId, Strokes: 0, Penalties: 0}
-	if err := service.repo.Create(service.repo.DB, &score); err != nil {
-		return nil, err
+	tx := service.repo.Begin()
+	defer func() {
+		if r := recover(); r != nil || tx.Error != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	conditions := map[string]interface{}{
+		"scorecard_id": scoreCardId,
+		"hole_id":      holeId,
 	}
-	return &score, nil
+
+	score, err := service.repo.SearchByColumns(tx, conditions)
+
+	if err != nil {
+		score := models.Score{HoleID: holeId, ScorecardID: scoreCardId, Strokes: 0, Penalties: 0}
+		if err := service.repo.Create(tx, &score); err != nil {
+			return nil, err
+		}
+		return &score, nil
+	}
+
+	return score, nil
 }
 
 func (service *ScoreService) UpdateScore(scoreID uint, newStrokes uint, newPenalties uint) (*models.Score, error) {

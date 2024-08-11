@@ -23,7 +23,7 @@ export const load = async ({ url, parent }) => {
 }
 
 /**
- * 
+ * Create or fetch score
  * @param {number} holeId 
  * @param {number} scoreCardId
  * @returns {Promise<import("$lib/types").Score>} 
@@ -35,8 +35,7 @@ async function createScore(holeId, scoreCardId) {
         body: JSON.stringify({ hole_id: holeId, score_card_id: scoreCardId })
     }
     const response = await fetch("http://localhost:8800/scores", scoreRequest)
-
-    if (response.ok) {
+    if (response.ok || response.status === 304) {
         /**
          * @type {import("$lib/types").Score}
          */
@@ -44,5 +43,16 @@ async function createScore(holeId, scoreCardId) {
         return score
     }
 
-    throw Error("Failed to create score")
+    error(400, "Failed to create or fetch score")
 }
+
+export const actions = {
+    /**
+    * @param {import('@sveltejs/kit').RequestEvent} event 
+    */
+    patchScore: async ({ request }) => {
+        const data = await request.formData()
+        const newStrokes = Number(data.get('newStrokes'));
+        const newPenalties = Number(data.get('newPenalties'))
+    }
+};

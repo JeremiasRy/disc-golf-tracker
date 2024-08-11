@@ -26,16 +26,16 @@ type Round struct {
 
 type ScoreCard struct {
 	gorm.Model
-	RoundID uint
-	UserID  uint
+	RoundID uint    `gorm:"primaryKey"`
+	UserID  uint    `gorm:"primaryKey"`
 	User    User    `json:"user"`
 	Scores  []Score `gorm:"foreignKey:ScorecardID;constraint:OnDelete:Cascade" json:"scores"`
 }
 
 type Score struct {
 	gorm.Model
-	HoleID      uint `json:"hole_id"`
-	ScorecardID uint `json:"scorecard_id"`
+	HoleID      uint `json:"hole_id" gorm:"uniqueIndex:idx_hole_scorecard"`
+	ScorecardID uint `json:"scorecard_id" gorm:"uniqueIndex:idx_hole_scorecard"`
 	Strokes     uint `json:"strokes"`
 	Penalties   uint `json:"penalties"`
 }

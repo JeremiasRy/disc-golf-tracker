@@ -74,3 +74,15 @@ func (repo *CrudRepository[T]) GetAllWithRelations(tx *gorm.DB, relations ...str
 	}
 	return &models, nil
 }
+
+func (repo *CrudRepository[T]) SearchByColumns(tx *gorm.DB, conditions map[string]interface{}) (*T, error) {
+	var model T
+	query := tx
+	for column, value := range conditions {
+		query = query.Where(column+" = ?", value)
+	}
+	if err := query.First(&model).Error; err != nil {
+		return nil, err
+	}
+	return &model, nil
+}

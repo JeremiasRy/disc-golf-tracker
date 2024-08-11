@@ -30,6 +30,8 @@ export type ScoreCard = {
 
 export type Score = {
     ID: number
+    hole_id: number
+    scorecard_id: number
     strokes: number
     penalties: number
 }
