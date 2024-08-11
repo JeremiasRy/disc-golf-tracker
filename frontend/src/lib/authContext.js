@@ -10,18 +10,13 @@ export function setUser(user) {
     userStore.set(user);
 }
 
-export function getUserStore() {
-    return userStore;
-}
-
 export function initAuthContext() {
     setContext(AUTH_CONTEXT, userStore);
 }
 
 /**
- * 
  * @returns {import('svelte/store').Writable<import('$lib/types').User | null>}
  */
-export function useAuth() {
+export function useAuthContext() {
     return getContext(AUTH_CONTEXT);
 }

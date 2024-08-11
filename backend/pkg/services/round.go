@@ -14,7 +14,7 @@ func NewRoundService(repository *repositories.CrudRepository[models.Round]) Roun
 }
 
 func (service *RoundService) GetRound(roundID uint) (*models.Round, error) {
-	return service.repo.GetWithRelations(service.repo.DB, roundID, "ScoreCards.Scores")
+	return service.repo.GetWithRelations(service.repo.DB, roundID, "ScoreCards.Scores", "Course.Holes", "ScoreCards.User")
 }
 
 func (service *RoundService) CreateRound(courseID uint) (*models.Round, error) {

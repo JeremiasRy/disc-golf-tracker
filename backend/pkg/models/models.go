@@ -20,6 +20,7 @@ type Hole struct {
 type Round struct {
 	gorm.Model
 	CourseID   uint
+	Course     Course      `json:"course"`
 	ScoreCards []ScoreCard `gorm:"foreignKey:RoundID;constraint:OnDelete:Cascade" json:"cards"`
 }
 
@@ -27,6 +28,7 @@ type ScoreCard struct {
 	gorm.Model
 	RoundID uint
 	UserID  uint
+	User    User    `json:"user"`
 	Scores  []Score `gorm:"foreignKey:ScorecardID;constraint:OnDelete:Cascade" json:"scores"`
 }
 

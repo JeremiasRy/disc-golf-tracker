@@ -14,10 +14,13 @@ export const load = async ({ cookies, url }) => {
         };
     }
 
-    // TODO: proper validation of session token
+    // REMINDER: this is just to make something work, proper session magement is a story of it's own and later in the pipeline
     const response = await fetch(`http://localhost:8800/users/${token}`)
 
     if (response.ok) {
+        /**
+         * @type {import("$lib/types").User}
+         */
         const user = await response.json();
 
         if (!url.pathname.startsWith('/app')) {

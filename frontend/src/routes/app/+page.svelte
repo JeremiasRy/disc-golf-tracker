@@ -1,7 +1,6 @@
 <script>
-    import { useAuth } from "$lib/auth";
-    import Navigation from "$lib/Navigation.svelte";
-    const userStore = useAuth();
+    import { useAuthContext } from "$lib";
+    const userStore = useAuthContext();
     /**@type {import("../../lib/types").User | null}*/
     let user;
 
