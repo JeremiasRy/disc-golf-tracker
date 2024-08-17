@@ -1,4 +1,4 @@
-import { error } from "@sveltejs/kit"
+import { error, redirect } from "@sveltejs/kit"
 
 /**
  * @type {import("./$types").PageServerLoad}
@@ -45,14 +45,11 @@ async function createScore(holeId, scoreCardId) {
 
     error(400, "Failed to create or fetch score")
 }
-
+/** @type {import("./$types").Actions} */
 export const actions = {
-    /**
-    * @param {import('@sveltejs/kit').RequestEvent} event 
-    */
-    patchScore: async ({ request }) => {
+    redirect: async ({ request }) => {
         const data = await request.formData()
-        const newStrokes = Number(data.get('newStrokes'));
-        const newPenalties = Number(data.get('newPenalties'))
+        const url = String(data.get("url"))
+        redirect(302, url)
     }
-};
+}

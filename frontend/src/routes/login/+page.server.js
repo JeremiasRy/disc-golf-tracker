@@ -11,7 +11,6 @@ export const actions = {
         }
 
         const response = await fetch(`http://localhost:8800/users/${userId}`)
-        console.log(response)
         if (response.ok) {
             const user = await response.json();
             cookies.set("auth_token", user.ID, { path: "/" })

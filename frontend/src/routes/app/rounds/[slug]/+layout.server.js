@@ -4,7 +4,6 @@ import { error } from "@sveltejs/kit";
 /** @type {import("./$types").LayoutServerLoad}*/
 export const load = async ({ url }) => {
     const roundId = extractRoundIdFromUrl(url)
-    console.log("round id in layout: ", roundId)
     if (roundId === undefined) {
         error(400, "No round provided")
     }
