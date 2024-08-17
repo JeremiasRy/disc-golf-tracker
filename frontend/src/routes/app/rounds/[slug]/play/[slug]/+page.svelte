@@ -21,7 +21,7 @@
         error(404, "Ended up in a hole that doesn't exist");
     }
 
-    const { ID: holeId, par } = currentHole;
+    const { par } = currentHole;
 
     let currentScores = scores.map((score) => ({
         score,
