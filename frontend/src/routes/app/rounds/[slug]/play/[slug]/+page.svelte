@@ -23,13 +23,21 @@
 
     const { ID: holeId, par } = currentHole;
 
-    let currentScores = scores
-        .filter((score) => score.hole_id === holeId)
-        .map((score) => ({
+    let currentScores = scores.map((score) => ({
+        score,
+        user: round.cards.filter((card) => card.ID === score.scorecard_id)[0]
+            .user,
+    }));
+
+    let scoreDisplay = round.cards.map((card) => ({
+        user: card.user,
+        scores: card.scores.map((score) => ({
+            par: round.course.holes.filter(
+                (hole) => hole.ID === score.hole_id,
+            )[0].par,
             score,
-            user: round.cards.find((card) => card.ID === score.scorecard_id)
-                ?.user,
-        }));
+        })),
+    }));
 
     /**
      * @param newScore {import("$lib/types.js").Score}
@@ -38,6 +46,14 @@
         currentScores = currentScores.map(({ user, score }) => ({
             user,
             score: score.ID !== newScore.ID ? score : newScore,
+        }));
+
+        scoreDisplay = scoreDisplay.map(({ user, scores }) => ({
+            user,
+            scores: scores.map(({ par, score }) => ({
+                par,
+                score: score.ID === newScore.ID ? newScore : score,
+            })),
         }));
     }
 
@@ -106,9 +122,18 @@
     }
 </script>
 
+{#each scoreDisplay as { user, scores }}
+    <h2>{user.name}</h2>
+    <div>
+        {#each scores as { par, score }}
+            <div>{score.strokes + score.penalties}</div>
+        {/each}
+    </div>
+{/each}
 <h2>Hole {nthHole} Par {par}</h2>
+
 {#each currentScores as { score, user }}
-    <h4>{user?.name}</h4>
+    <h4>{user?.name} | {score.penalties + score.strokes}</h4>
     <div class="score-input-wrapper">
         <div class="score-input-wrapper__score-input">
             <button
@@ -138,7 +163,11 @@
     </div>
     <form method="POST" action="?/redirect">
         <input type="hidden" value={getNextHoleHref()} name="url" />
-        <button type="submit">Next Hole</button>
+        <button
+            type="submit"
+            disabled={Number(nthHole) === round.course.holes.length}
+            >Next Hole</button
+        >
     </form>
     <form method="POST" action="?/redirect">
         <input type="hidden" value={getPreviousHoleHref()} name="url" />
